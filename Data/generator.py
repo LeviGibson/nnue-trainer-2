@@ -4,12 +4,13 @@ import chess.pgn
 import chess
 from stockfish import Stockfish
 from math import pow
+import sys
+
+pgn = None
+outfile = None
 
 stockfish = Stockfish("./Stockfish/src/stockfish")
 stockfish.set_depth(9)
-
-pgn = open("data.pgn", 'r')
-outfile = open("chessDataUnshuffled.csv", 'w')
 
 def sf_sigmoid(x):
     if x['Mate'] is not None:
@@ -45,6 +46,16 @@ def write_game(game):
         print(linesDone)
         linesDone+=1
 
-while True:
-    game = list(chess.pgn.read_game(pgn).mainline_moves())
-    write_game(game)
+
+def run(filename):
+    global pgn, outfile
+    pgn = open(filename + '.pgn', 'r')
+    outfile = open(filename + ".csv", 'w')
+
+    while True:
+        game = list(chess.pgn.read_game(pgn).mainline_moves())
+        write_game(game)
+
+if __name__ == '__main__':
+    print(sys.argv)
+    run(sys.argv[1])

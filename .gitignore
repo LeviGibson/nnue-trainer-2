@@ -10,4 +10,4 @@ production/*
 .vscode
 __pycache__
 chessData.csv
-
+val_chessData.csv

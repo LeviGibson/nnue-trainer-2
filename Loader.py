@@ -5,13 +5,12 @@ import CsvProcessor, Features
 
 class DataLoader(keras.utils.Sequence):
 
-    def __init__(self, batch_size, name, shuffle=True, validation=False):
+    def __init__(self, batch_size, name, filename="chessData.csv"):
         self.lines = []
-        infile = open("chessData.csv", 'r')
+        infile = open(filename, 'r')
         infile.readline()
         for i, line in enumerate(infile):
             self.lines.append(line)
-            # if i == (1000000):break
         
         self.batch_size = batch_size
         self.name = name

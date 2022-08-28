@@ -1,0 +1,13 @@
+Data/Stockfish
+.chessDataUnshuffled.csv
+chessData.csv
+Data/*.pgn
+Data/*.csv
+logs/*
+production/*
+.ipynb_checkpoints
+.idea
+.vscode
+__pycache__
+chessData.csv
+

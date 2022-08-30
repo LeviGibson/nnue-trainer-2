@@ -7,10 +7,14 @@ class DataLoader(keras.utils.Sequence):
 
     def __init__(self, batch_size, name, filename="chessData.csv"):
         self.lines = []
+        self.labels = []
         infile = open(filename, 'r')
         infile.readline()
         for i, line in enumerate(infile):
-            self.lines.append(line)
+            l = CsvProcessor.process_line(line)
+            self.lines.append(l)
+            self.labels.append(l[1])
+        self.labels = np.array(self.labels)
         
         self.batch_size = batch_size
         self.name = name
@@ -24,7 +28,7 @@ class DataLoader(keras.utils.Sequence):
             
         for i in range(self.batch_size):
             index = i+(idx*self.batch_size)
-            line = CsvProcessor.process_line(self.lines[index])
+            line = (self.lines[index])
             x.append(Features.get(line[0]))
             y.append(line[1])
 

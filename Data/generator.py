@@ -1,16 +1,14 @@
-from lib2to3.pgen2 import pgen
-from lib2to3.pgen2.literals import evalString
 import chess.pgn
 import chess
 from stockfish import Stockfish
 from math import pow
 import sys
+import threading
 
 pgn = None
 outfile = None
 
-stockfish = Stockfish("./Stockfish/src/stockfish")
-stockfish.set_depth(9)
+lines = []
 
 def sf_sigmoid(x):
     if x['Mate'] is not None:
@@ -25,7 +23,7 @@ def sf_evaluation_to_string(x):
 
 linesDone = 0
 
-def write_game(game):
+def write_game(game, stockfish):
     global linesDone
     board = chess.Board()
     for move in game:
@@ -46,15 +44,33 @@ def write_game(game):
         print(linesDone)
         linesDone+=1
 
+def write_games(games):
+    stockfish = Stockfish("./Stockfish/src/stockfish")
+    stockfish.set_depth(9)
+
+    for g in games:
+        write_game(g, stockfish)
 
 def run(filename):
     global pgn, outfile
     pgn = open(filename + '.pgn', 'r')
     outfile = open(filename + ".csv", 'w')
 
+    threads = []
+
     while True:
-        game = list(chess.pgn.read_game(pgn).mainline_moves())
-        write_game(game)
+        for thr in range(12):
+            games = []
+            for i in range(100):
+                games.append(list(chess.pgn.read_game(pgn).mainline_moves()))
+            # write_games(games)
+            thread = threading.Thread(target=write_games, args=(games,))
+            thread.start()
+            threads.append(thread)
+
+        for thr in threads:
+            thr.join()
+
 
 if __name__ == '__main__':
     print(sys.argv)

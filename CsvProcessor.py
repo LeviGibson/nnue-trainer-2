@@ -11,7 +11,7 @@ def sf_sigmoid(x) -> float:
             return 1
 
     try:
-        x = float(x) / 100
+        x = float(x) / 410
     except:
         print("EXEPTION", x)
         return .5

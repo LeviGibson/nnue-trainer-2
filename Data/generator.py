@@ -4,11 +4,13 @@ from stockfish import Stockfish
 from math import pow
 import sys
 import threading
+from threading import Lock
 
 pgn = None
 outfile = None
 
 lines = []
+outfileMutex = Lock()
 
 def sf_sigmoid(x):
     if x['Mate'] is not None:
@@ -23,8 +25,11 @@ def sf_evaluation_to_string(x):
 
 linesDone = 0
 
+
 def write_game(game, stockfish):
     global linesDone
+    lines = ""
+
     board = chess.Board()
     for move in game:
         board.push(move)
@@ -39,10 +44,14 @@ def write_game(game, stockfish):
             continue
 
         evalString = sf_evaluation_to_string(multipv[0])
-        outfile.write(board.fen() + "," + evalString + "\n")
+        lines += (board.fen() + "," + evalString + "\n")
 
         print(linesDone)
         linesDone+=1
+
+        outfileMutex.acquire()
+        outfile.write(lines)
+        outfileMutex.release()
 
 def write_games(games):
     stockfish = Stockfish("./Stockfish/src/stockfish")

@@ -9,7 +9,6 @@ from threading import Lock
 pgn = None
 outfile = None
 
-lines = []
 outfileMutex = Lock()
 
 def sf_sigmoid(x):
@@ -40,18 +39,19 @@ def write_game(game, stockfish):
 
         diff = abs(sf_sigmoid(multipv[0]) - sf_sigmoid(multipv[-1]))
         if diff > .3:
-            print("rejected", board.fen(), diff)
+            # print("rejected", board.fen(), diff)
             continue
 
         evalString = sf_evaluation_to_string(multipv[0])
         lines += (board.fen() + "," + evalString + "\n")
 
-        print(linesDone)
+        if linesDone % 500 == 0:
+            print(linesDone)
         linesDone+=1
 
-        outfileMutex.acquire()
-        outfile.write(lines)
-        outfileMutex.release()
+    outfileMutex.acquire()
+    outfile.write(lines)
+    outfileMutex.release()
 
 def write_games(games):
     stockfish = Stockfish("./Stockfish/src/stockfish")
@@ -59,6 +59,7 @@ def write_games(games):
 
     for g in games:
         write_game(g, stockfish)
+    stockfish.__del__()
 
 def run(filename):
     global pgn, outfile
@@ -68,9 +69,9 @@ def run(filename):
     threads = []
 
     while True:
-        for thr in range(12):
+        for thr in range(16):
             games = []
-            for i in range(100):
+            for i in range(20):
                 games.append(list(chess.pgn.read_game(pgn).mainline_moves()))
             # write_games(games)
             thread = threading.Thread(target=write_games, args=(games,))
@@ -79,7 +80,7 @@ def run(filename):
 
         for thr in threads:
             thr.join()
-
+        print("ALL THREADS FINISHED")
 
 if __name__ == '__main__':
     print(sys.argv)

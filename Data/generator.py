@@ -5,6 +5,7 @@ from math import pow
 import sys
 import threading
 from threading import Lock
+from math import floor
 
 pgn = None
 outfile = None
@@ -15,7 +16,7 @@ def sf_sigmoid(x):
     if x['Mate'] is not None:
         if x['Mate'] < 0: return 0
         return 1
-    return 1/(1+pow(2.71828, (-x['Centipawn']/100)))
+    return 1/(1+pow(2.71828, (-x['Centipawn']/410)))
 
 def sf_evaluation_to_string(x):
     if x['Mate'] is not None:
@@ -27,7 +28,7 @@ linesDone = 0
 
 def write_game(game, stockfish):
     global linesDone
-    lines = ""
+    lines = ["", "", "", "", ""]
 
     board = chess.Board()
     for move in game:
@@ -38,19 +39,20 @@ def write_game(game, stockfish):
         multipv = stockfish.get_top_moves(5)
 
         diff = abs(sf_sigmoid(multipv[0]) - sf_sigmoid(multipv[-1]))
-        if diff > .3:
+        if diff > .4999:
             # print("rejected", board.fen(), diff)
             continue
 
         evalString = sf_evaluation_to_string(multipv[0])
-        lines += (board.fen() + "," + evalString + "\n")
+        lines[floor(diff*10)] += (board.fen() + "," + evalString + "\n")
 
         if linesDone % 500 == 0:
             print(linesDone)
         linesDone+=1
 
     outfileMutex.acquire()
-    outfile.write(lines)
+    for i in range(len(lines)):
+        outfile[i].write(lines[i])
     outfileMutex.release()
 
 def write_games(games):
@@ -64,7 +66,13 @@ def write_games(games):
 def run(filename):
     global pgn, outfile
     pgn = open(filename + '.pgn', 'r')
-    outfile = open(filename + ".csv", 'w')
+    outfile = [
+        open("1.csv", 'w'),
+        open("2.csv", 'w'),
+        open("3.csv", 'w'),
+        open("4.csv", 'w'),
+        open("5.csv", 'w')
+        ]
 
     threads = []
 

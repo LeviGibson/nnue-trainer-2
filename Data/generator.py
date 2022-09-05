@@ -6,6 +6,7 @@ import sys
 import threading
 from threading import Lock
 from math import floor
+import random
 
 pgn = None
 outfile = None
@@ -25,22 +26,39 @@ def sf_evaluation_to_string(x):
 
 linesDone = 0
 
+def get_random_opening(stockfish : Stockfish):
+    board = chess.Board()
+    for i in range(6):
+        legalMoves = list(board.legal_moves)
+        board.push(legalMoves[random.randint(0, len(legalMoves)-1)])
+    
+    fen = board.fen()
+    stockfish.set_fen_position(fen)
+    evaluation = stockfish.get_evaluation()
+    diff = abs(evaluation['value'])
 
-def write_game(game, stockfish):
+    if diff < 150 and evaluation['type'] == 'cp':
+        return fen
+
+    return get_random_opening(stockfish)
+
+def write_game(game, stockfish : Stockfish):
     global linesDone
+
+    startpos = get_random_opening(stockfish)
+
     lines = ["", "", "", "", ""]
 
-    board = chess.Board()
-    for move in game:
-        board.push(move)
-        if board.is_game_over(): break
-
-        stockfish.set_fen_position(board.fen())
+    board = chess.Board(startpos)
+    while not board.is_game_over():
         multipv = stockfish.get_top_moves(5)
 
         diff = abs(sf_sigmoid(multipv[0]) - sf_sigmoid(multipv[-1]))
+
+        board.push_uci(multipv[0]["Move"])
+        stockfish.make_moves_from_current_position([multipv[0]["Move"]])
+
         if diff > .4999:
-            # print("rejected", board.fen(), diff)
             continue
 
         evalString = sf_evaluation_to_string(multipv[0])
@@ -67,11 +85,11 @@ def run(filename):
     global pgn, outfile
     pgn = open(filename + '.pgn', 'r')
     outfile = [
-        open("1.csv", 'w'),
-        open("2.csv", 'w'),
-        open("3.csv", 'w'),
-        open("4.csv", 'w'),
-        open("5.csv", 'w')
+        open("1.csv", 'a'),
+        open("2.csv", 'a'),
+        open("3.csv", 'a'),
+        open("4.csv", 'a'),
+        open("5.csv", 'a')
         ]
 
     threads = []
@@ -81,7 +99,6 @@ def run(filename):
             games = []
             for i in range(20):
                 games.append(list(chess.pgn.read_game(pgn).mainline_moves()))
-            # write_games(games)
             thread = threading.Thread(target=write_games, args=(games,))
             thread.start()
             threads.append(thread)

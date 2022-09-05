@@ -81,7 +81,7 @@ def write_games():
         write_game(stockfish)
     stockfish.__del__()
 
-def run(filename):
+def run():
     global pgn, outfile
     outfile = [
         open("1.csv", 'a'),
@@ -104,5 +104,4 @@ def run(filename):
         print("ALL THREADS FINISHED")
 
 if __name__ == '__main__':
-    print(sys.argv)
-    run(sys.argv[1])
+    run()

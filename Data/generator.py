@@ -42,7 +42,7 @@ def get_random_opening(stockfish : Stockfish):
 
     return get_random_opening(stockfish)
 
-def write_game(stockfish : Stockfish):
+def write_game(game, stockfish : Stockfish):
     global linesDone
 
     startpos = get_random_opening(stockfish)
@@ -73,16 +73,17 @@ def write_game(stockfish : Stockfish):
         outfile[i].write(lines[i])
     outfileMutex.release()
 
-def write_games():
+def write_games(games):
     stockfish = Stockfish("./Stockfish/src/stockfish")
     stockfish.set_depth(9)
 
-    for g in range(20):
-        write_game(stockfish)
+    for g in games:
+        write_game(g, stockfish)
     stockfish.__del__()
 
 def run(filename):
     global pgn, outfile
+    pgn = open(filename + '.pgn', 'r')
     outfile = [
         open("1.csv", 'a'),
         open("2.csv", 'a'),
@@ -95,7 +96,10 @@ def run(filename):
 
     while True:
         for thr in range(16):
-            thread = threading.Thread(target=write_games)
+            games = []
+            for i in range(20):
+                games.append(list(chess.pgn.read_game(pgn).mainline_moves()))
+            thread = threading.Thread(target=write_games, args=(games,))
             thread.start()
             threads.append(thread)
 

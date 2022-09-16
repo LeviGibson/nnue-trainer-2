@@ -36,7 +36,7 @@ def write_game(game, stockfish):
         if board.is_game_over(): break
 
         stockfish.set_fen_position(board.fen())
-        multipv = stockfish.get_top_moves(5)
+        multipv = stockfish.get_top_moves(1)
 
         diff = abs(sf_sigmoid(multipv[0]) - sf_sigmoid(multipv[-1]))
         if diff > .4999:

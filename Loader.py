@@ -11,9 +11,8 @@ class DataLoader(keras.utils.Sequence):
         infile = open(filename, 'r')
         infile.readline()
         for i, line in enumerate(infile):
-            l = CsvProcessor.process_line(line)
-            self.lines.append(l)
-            self.labels.append(l[1])
+            self.lines.append(line)
+            self.labels.append(CsvProcessor.sf_sigmoid(line.split(",")[1]))
         self.labels = np.array(self.labels)
         
         self.batch_size = batch_size
@@ -28,7 +27,7 @@ class DataLoader(keras.utils.Sequence):
             
         for i in range(self.batch_size):
             index = i+(idx*self.batch_size)
-            line = (self.lines[index])
+            line = CsvProcessor.process_line(self.lines[index])
             x.append(Features.get(line[0]))
             y.append(line[1])
 

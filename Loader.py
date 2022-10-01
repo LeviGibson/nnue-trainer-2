@@ -9,10 +9,10 @@ def scaled_sigmoid(x):
 
 class DataLoader(keras.utils.Sequence):
 
-    def __init__(self, batch_size, name, filename="chessData.csv"):
+    def __init__(self, batch_size, name, val=False):
         self.lib = ctypes.CDLL('./loader.so')
         
-        self.lib.init(0, batch_size)
+        self.lib.init(val, batch_size)
         self.lib.generate_features.restype = ctypes.POINTER(ctypes.c_int * (769*batch_size))
         self.lib.generate_labels.restype = ctypes.POINTER(ctypes.c_int * batch_size)
         

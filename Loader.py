@@ -10,9 +10,12 @@ def scaled_sigmoid(x):
 class DataLoader(keras.utils.Sequence):
 
     def __init__(self, batch_size, name, val=False):
-        self.lib = ctypes.CDLL('./loader.so')
+        if val:
+            self.lib = ctypes.CDLL('./val_loader.so')
+        else:
+            self.lib = ctypes.CDLL('./loader.so')
         
-        self.lib.init(val, batch_size)
+        self.lib.init(int(val), batch_size)
         self.lib.generate_features.restype = ctypes.POINTER(ctypes.c_int * (769*batch_size))
         self.lib.generate_labels.restype = ctypes.POINTER(ctypes.c_int * batch_size)
         

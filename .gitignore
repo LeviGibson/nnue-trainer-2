@@ -12,3 +12,5 @@ __pycache__
 chessData.csv
 val_chessData.csv
 loader
+loader.o
+loader.so

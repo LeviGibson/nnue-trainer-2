@@ -1,5 +1,5 @@
 all:
-	gcc -c loader.c
+	gcc -c -fPIC loader.c
 	gcc -shared loader.o -o loader.so
 
 exe:
@@ -8,4 +8,3 @@ clean:
 	rm -f loader
 	rm -f loader.o
 	rm -f loader.so
-	

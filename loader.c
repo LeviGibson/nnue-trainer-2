@@ -21,6 +21,8 @@ int getLineCount(FILE *fp){
 }
 
 int32_t *features;
+int32_t *labels;
+int32_t linecount = -1;
 
 char *data;
 
@@ -106,10 +108,13 @@ void print_board(){
 void init(int val, int batchSize){
     BATCH_SIZE = batchSize;
     features = malloc(sizeof(int32_t) * FEATURE_COUNT * BATCH_SIZE);
+    labels = malloc(sizeof(int32_t) * BATCH_SIZE);
 
     FILE *fin = fopen("chessData.csv", "r");
 
     int count = getLineCount(fin);
+    linecount = count;
+
     int lineIndex = 0;
     data = malloc(sizeof(char) * count * MAX_LINE_LENGTH);
 
@@ -137,17 +142,39 @@ int *generate_features(int index){
         memcpy(&features[batch*FEATURE_COUNT], pieces, sizeof(pieces));
         features[batch*FEATURE_COUNT + 768] = side;
     }
-    
+
     return features;
+}
+
+int *generate_labels(int index){
+    for (int i = 0; i < BATCH_SIZE; i++) {
+        char* fen = &data[(index * BATCH_SIZE * MAX_LINE_LENGTH) + (i * MAX_LINE_LENGTH)];
+        for (size_t ch = 0; ch < 100; ch++) {
+            if (fen[ch] == ','){
+                
+                if (fen[ch+1] == '#'){
+                    if (fen[ch+2] == '+')
+                        labels[i] = 10000;
+                    else
+                        labels[i] = -10000;
+                } else {
+                    labels[i] = atoi(&fen[ch+1]);
+                }
+
+                break;
+            }
+        }
+        
+    }
+    
+    return labels;
 }
 
 #ifdef EXE
 int main(){
 
     init(0, 64);
-
-    generate_features(0);
-    
+    generate_labels(0);
 
     // parse_fen(data);
     // print_board();

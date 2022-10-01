@@ -109,9 +109,14 @@ void init(int val, int batchSize){
     BATCH_SIZE = batchSize;
     features = malloc(sizeof(int32_t) * FEATURE_COUNT * BATCH_SIZE);
     labels = malloc(sizeof(int32_t) * BATCH_SIZE);
-
-    FILE *fin = fopen("chessData.csv", "r");
-
+    
+    FILE *fin;
+    if (val){
+        fin = fopen("val_chessData.csv", "r");
+    } else {
+        fin = fopen("chessData.csv", "r");
+    }
+    
     int count = getLineCount(fin);
     linecount = count;
 
@@ -151,7 +156,7 @@ int *generate_labels(int index){
         char* fen = &data[(index * BATCH_SIZE * MAX_LINE_LENGTH) + (i * MAX_LINE_LENGTH)];
         for (size_t ch = 0; ch < 100; ch++) {
             if (fen[ch] == ','){
-                
+
                 if (fen[ch+1] == '#'){
                     if (fen[ch+2] == '+')
                         labels[i] = 10000;

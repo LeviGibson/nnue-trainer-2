@@ -128,10 +128,10 @@ void init(int val, int batchSize){
     int64_t cindex = 0;
 
     for (c = getc(fin); c != EOF; c = getc(fin)){
-        data[(lineIndex*MAX_LINE_LENGTH) + cindex] = c;
+        data[((int64_t)lineIndex*(int64_t)MAX_LINE_LENGTH) + (int64_t)cindex] = c;
         cindex++;
         if (c == '\n'){
-            data[(lineIndex*100) + cindex - 1] = '\0';
+            data[((int64_t)lineIndex*(int64_t)100) + (int64_t)cindex - (int64_t)1] = '\0';
             lineIndex++;
             cindex = 0;
         }
@@ -154,15 +154,16 @@ int *generate_features(int index){
 
 int *generate_labels(int index){
     for (int i = 0; i < BATCH_SIZE; i++) {
-        char* fen = &data[(index * BATCH_SIZE * MAX_LINE_LENGTH) + (i * MAX_LINE_LENGTH)];
-        for (size_t ch = 0; ch < 100; ch++) {
+        char* fen = &data[((int64_t)index * (int64_t)BATCH_SIZE * (int64_t)MAX_LINE_LENGTH) + ((int64_t)i * (int64_t)MAX_LINE_LENGTH)];
+
+        for (int ch = 0; ch < 100; ch++) {
             if (fen[ch] == ','){
 
                 if (fen[ch+1] == '#'){
-                    if (fen[ch+2] == '+')
-                        labels[i] = 10000;
-                    else
+                    if (fen[ch+2] == '-')
                         labels[i] = -10000;
+                    else
+                        labels[i] = 10000;
                 } else {
                     labels[i] = atoi(&fen[ch+1]);
                 }
@@ -179,12 +180,15 @@ int *generate_labels(int index){
 #ifdef EXE
 int main(){
 
-    init(0, 64);
+    init(0, 128);
 
-    for (int i = 0; i < linecount; i++) {
-        printf("%d\n", i);
-        generate_features(i);
-    }
+    // for (int i = 0; i < linecount; i++) {
+    //     printf("%d\n", i);
+    //     generate_features(i);
+    // }
+
+    generate_features(323150);
+    generate_labels(323150);
     
 
     // parse_fen(data);

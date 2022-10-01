@@ -43,8 +43,14 @@ class DataLoader(keras.utils.Sequence):
 
 
 if __name__ == '__main__':
-    l = DataLoader(32, 'generator')
-    g = l.__getitem__(3)
+    l = DataLoader(32, 'generator', val=True)
+    print(l[0])
+
+    # for i in range(1000000):
+    #     print(i)
+    #     l[i]
+
+    # g = l.__getitem__(3)
     # for i in range(32):
     #     print(g[0][i], g[1][i])
     #     print()

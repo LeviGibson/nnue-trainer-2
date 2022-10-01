@@ -3,7 +3,9 @@
 #include <assert.h>
 #include <string.h>
 
+int BATCH_SIZE = -1;
 #define MAX_LINE_LENGTH 100
+#define FEATURE_COUNT 769
 #define WHITE 1
 #define BLACK 0
 enum {p_P, p_N, p_B, p_R, p_Q, p_K, p_p, p_n, p_b, p_r, p_q, p_k};
@@ -18,11 +20,11 @@ int getLineCount(FILE *fp){
     return count;
 }
 
-int32_t features[769];
+int32_t *features;
 
 char *data;
 
-unsigned char pieces[12][64];
+int32_t pieces[12][64];
 int side;
 
 int32_t char_pieces[] = {
@@ -101,12 +103,14 @@ void print_board(){
 
 }
 
-void init(int val){
+void init(int val, int batchSize){
+    BATCH_SIZE = batchSize;
+    features = malloc(sizeof(int32_t) * FEATURE_COUNT * BATCH_SIZE);
+
     FILE *fin = fopen("chessData.csv", "r");
 
     int count = getLineCount(fin);
     int lineIndex = 0;
-    // char data[count][100];
     data = malloc(sizeof(char) * count * MAX_LINE_LENGTH);
 
     char c;
@@ -127,14 +131,24 @@ void init(int val){
     fclose(fin);
 }
 
-void generate_features(char* fen){
-
+int *generate_features(int index){
+    for (int batch = 0; batch < BATCH_SIZE; batch++) {
+        parse_fen(&data[(index * BATCH_SIZE * MAX_LINE_LENGTH) + (batch * MAX_LINE_LENGTH)]);
+        memcpy(&features[batch*FEATURE_COUNT], pieces, sizeof(pieces));
+        features[batch*FEATURE_COUNT + 768] = side;
+    }
+    
+    return features;
 }
 
 #ifdef EXE
 int main(){
 
-    init(0);
+    init(0, 64);
+
+    generate_features(0);
+    
+
     // parse_fen(data);
     // print_board();
 

@@ -4,3 +4,8 @@ all:
 
 exe:
 	gcc -D EXE loader.c -o loader
+clean:
+	rm -f loader
+	rm -f loader.o
+	rm -f loader.so
+	

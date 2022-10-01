@@ -11,3 +11,6 @@ production/*
 __pycache__
 chessData.csv
 val_chessData.csv
+loader
+loader.o
+loader.so

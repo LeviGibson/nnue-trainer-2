@@ -121,14 +121,14 @@ void init(int val, int batchSize){
     int count = getLineCount(fin);
     linecount = count;
 
-    int lineIndex = 0;
+    int64_t lineIndex = 0;
     data = malloc(sizeof(char) * count * MAX_LINE_LENGTH);
 
     char c;
-    int cindex = 0;
+    int64_t cindex = 0;
 
     for (c = getc(fin); c != EOF; c = getc(fin)){
-        data[(lineIndex*100) + cindex] = c;
+        data[(lineIndex*MAX_LINE_LENGTH) + cindex] = c;
         cindex++;
         if (c == '\n'){
             data[(lineIndex*100) + cindex - 1] = '\0';

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <stdint.h>
 
 int BATCH_SIZE = -1;
 #define MAX_LINE_LENGTH 100

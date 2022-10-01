@@ -57,8 +57,7 @@ def castling_rights(board : Board, pmap):
                     board.has_queenside_castling_rights(chess.BLACK)]).astype(int)
 
 def extra_features(board, pmap):
-    # return material(board)
-    return np.concatenate((material(board, pmap), turn(board, pmap)), axis=0)
+    return turn(board, pmap)
 
 def get(fen):
     board = Board(fen)

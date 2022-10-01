@@ -144,7 +144,7 @@ void init(int val, int batchSize){
 
 int *generate_features(int index){
     for (int batch = 0; batch < BATCH_SIZE; batch++) {
-        parse_fen(&data[(index * BATCH_SIZE * MAX_LINE_LENGTH) + (batch * MAX_LINE_LENGTH)]);
+        parse_fen(&data[((int64_t)index * (int64_t)BATCH_SIZE * (int64_t)MAX_LINE_LENGTH) + ((int64_t)batch * (int64_t)MAX_LINE_LENGTH)]);
         memcpy(&features[batch*FEATURE_COUNT], pieces, sizeof(pieces));
         features[batch*FEATURE_COUNT + 768] = side;
     }
@@ -180,7 +180,12 @@ int *generate_labels(int index){
 int main(){
 
     init(0, 64);
-    generate_labels(0);
+
+    for (int i = 0; i < linecount; i++) {
+        printf("%d\n", i);
+        generate_features(i);
+    }
+    
 
     // parse_fen(data);
     // print_board();

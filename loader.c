@@ -106,6 +106,17 @@ void print_board(){
 
 }
 
+int strscan(char* str, char chr){
+    for (int32_t i = 0; i < 256; i++) {
+        if (str[i] == chr){
+            return i;
+        }
+    }
+
+    printf("CHAR NOT FOUND\n");
+    exit(1);
+}
+
 void init(int val, int batchSize){
     BATCH_SIZE = batchSize;
     features = malloc(sizeof(int32_t) * FEATURE_COUNT * BATCH_SIZE);
@@ -127,16 +138,16 @@ void init(int val, int batchSize){
     char c;
     int64_t cindex = 0;
 
-    for (c = getc(fin); c != EOF; c = getc(fin)){
-        data[((int64_t)lineIndex*(int64_t)MAX_LINE_LENGTH) + (int64_t)cindex] = c;
-        cindex++;
-        if (c == '\n'){
-            data[((int64_t)lineIndex*(int64_t)100) + (int64_t)cindex - (int64_t)1] = '\0';
-            lineIndex++;
-            cindex = 0;
-        }
+    for (int i = 0; i < linecount; i++){
+        char* fenptr = &data[((int64_t)lineIndex*(int64_t)MAX_LINE_LENGTH)];
 
-        assert(cindex < MAX_LINE_LENGTH);
+        fread(fenptr, sizeof(char), 100, fin);
+        int32_t len = strscan(fenptr, '\n');
+
+        fenptr[len] = '\0';
+        lineIndex++;
+
+        fseek(fin, len - MAX_LINE_LENGTH + 1, SEEK_CUR);
     }
 
     fclose(fin);
@@ -180,15 +191,15 @@ int *generate_labels(int index){
 #ifdef EXE
 int main(){
 
-    init(0, 128);
+    init(1, 128);
 
     // for (int i = 0; i < linecount; i++) {
     //     printf("%d\n", i);
     //     generate_features(i);
     // }
 
-    generate_features(323150);
-    generate_labels(323150);
+    generate_features(20);
+    // generate_labels(323150);
     
 
     // parse_fen(data);

@@ -79,8 +79,8 @@ def predict(fen):
     print(sigmoid(l4))
 
 
-predict("8/2k5/8/8/8/8/2K2PPP/8 w - - 0 1")
-predict("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+# predict("8/2k5/8/8/8/8/2K2PPP/8 w - - 0 1")
+# predict("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 
 # print(weights[1].flatten())
 

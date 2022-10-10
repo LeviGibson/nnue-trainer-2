@@ -16,7 +16,7 @@ class DataLoader(keras.utils.Sequence):
             self.lib = ctypes.CDLL('./loader.so')
         
         self.lib.init(int(val), batch_size)
-        self.lib.generate_features.restype = ctypes.POINTER(ctypes.c_int * (769*batch_size))
+        self.lib.generate_features.restype = ctypes.POINTER(ctypes.c_int * (768*2*batch_size))
         self.lib.generate_labels.restype = ctypes.POINTER(ctypes.c_int * batch_size)
         
         self.batch_size = batch_size
@@ -35,11 +35,16 @@ class DataLoader(keras.utils.Sequence):
         return math.floor(self.linecount() / self.batch_size)
 
     def __getitem__(self, idx):
-        x = self.ctypes_generate_features(idx).reshape(self.batch_size, 769)
+        features = self.ctypes_generate_features(idx).reshape(self.batch_size, 2, 768)
         y = self.ctypes_generate_labels(idx)
         y = scaled_sigmoid(y)
 
-        return np.array(x), np.array(y)
+        x = ([], [])
+        for i in features:
+            x[0].append(i[0])
+            x[1].append(i[1])
+
+        return (np.array(x[0]), np.array(x[1])), np.array(y)
 
 
 if __name__ == '__main__':

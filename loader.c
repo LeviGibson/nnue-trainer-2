@@ -6,10 +6,22 @@
 
 int BATCH_SIZE = -1;
 #define MAX_LINE_LENGTH 100
-#define FEATURE_COUNT 769
+#define FEATURE_COUNT (768*2)
 #define WHITE 1
 #define BLACK 0
 enum {p_P, p_N, p_B, p_R, p_Q, p_K, p_p, p_n, p_b, p_r, p_q, p_k};
+const int32_t FLIP_PIECE[12] = {p_p, p_n, p_b, p_r, p_q, p_k, p_P, p_N, p_B, p_R, p_Q, p_K};
+
+const int32_t flip[64] = {
+        56, 57, 58, 59, 60, 61, 62, 63,
+        48, 49, 50, 51, 52, 53, 54, 55,
+        40, 41, 42, 43, 44, 45, 46, 47,
+        32, 33, 34, 35, 36, 37, 38, 39,
+        24, 25, 26, 27, 28, 29, 30, 31,
+        16, 17, 18, 19, 20, 21, 22, 23,
+        8, 9, 10, 11, 12, 13, 14, 15,
+        0, 1, 2, 3, 4, 5, 6, 7,
+};
 
 int getLineCount(FILE *fp){
     int count = 0;
@@ -27,7 +39,7 @@ int32_t linecount = -1;
 
 char *data;
 
-int32_t pieces[12][64];
+int32_t pieces[2][12][64];
 int side;
 
 int32_t char_pieces[] = {
@@ -66,7 +78,8 @@ void parse_fen(char* fen){
         if (char_pieces[c] == 0){
             square += atoi(&fen[i]);
         } else {
-            pieces[char_pieces[c]-1][square] = 1;
+            pieces[0][char_pieces[c]-1][square] = 1;
+            pieces[1][FLIP_PIECE[char_pieces[c]-1]][flip[square]] = 1;
             square++;
         }
     }
@@ -153,11 +166,21 @@ void init(int val, int batchSize){
     fclose(fin);
 }
 
+void ksqs(int* w, int* b){
+    for (int i = 0; i < 64; i++) {
+        if (pieces[p_K][i])
+            *w = i;
+
+        if (pieces[p_k][i])
+            *b = flip[i];
+    }
+    
+}
+
 int *generate_features(int index){
     for (int batch = 0; batch < BATCH_SIZE; batch++) {
         parse_fen(&data[((int64_t)index * (int64_t)BATCH_SIZE * (int64_t)MAX_LINE_LENGTH) + ((int64_t)batch * (int64_t)MAX_LINE_LENGTH)]);
         memcpy(&features[batch*FEATURE_COUNT], pieces, sizeof(pieces));
-        features[batch*FEATURE_COUNT + 768] = side;
     }
 
     return features;
